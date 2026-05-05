@@ -1,0 +1,104 @@
+/* dashboard/assets/style.css */
+
+/* Global settings */
+[data-testid="stAppViewContainer"] {
+    background-color: #0A1628;
+    color: #E0E0E0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+[data-testid="stSidebar"] {
+    background-color: #081120;
+    border-right: 1px solid #1E3A5F;
+}
+
+/* Titles and headers */
+h1, h2, h3, h4, h5, h6 {
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+}
+
+/* Custom metric cards */
+div[data-testid="stMetricValue"] {
+    font-size: 28px !important;
+    color: #00D4FF !important;
+    font-weight: 700 !important;
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
+div[data-testid="stMetricLabel"] {
+    font-size: 14px !important;
+    color: #AAAAAA !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+div[data-testid="stMetricDelta"] {
+    font-size: 14px !important;
+}
+
+/* Card containers (hack for Streamlit native containers) */
+div.stNumberInput, div.stSelectbox, div.stMultiSelect, div.stSlider {
+    background-color: transparent !important;
+}
+
+/* Metric wrapper styling to look like cards */
+[data-testid="metric-container"] {
+    background-color: #112240;
+    border: 1px solid #1E3A5F;
+    border-radius: 10px;
+    padding: 15px 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+[data-testid="metric-container"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 212, 255, 0.15);
+    border-color: #00D4FF;
+}
+
+/* Buttons */
+.stButton > button {
+    background: linear-gradient(135deg, #7B2FBE, #00D4FF);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 24px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+.stButton > button:hover {
+    background: linear-gradient(135deg, #00D4FF, #7B2FBE);
+    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+    color: white;
+}
+
+/* Inputs and dropdowns */
+.stTextInput > div > div > input,
+.stSelectbox > div > div > div,
+.stMultiSelect > div > div > div {
+    background-color: #112240 !important;
+    color: #FFFFFF !important;
+    border: 1px solid #1E3A5F !important;
+    border-radius: 6px !important;
+}
+
+/* Dataframe tables */
+[data-testid="stDataFrame"] {
+    background-color: #112240;
+    border-radius: 8px;
+    border: 1px solid #1E3A5F;
+}
+
+/* Footer */
+footer {
+    visibility: hidden;
+}
+.custom-footer {
+    text-align: center;
+    padding: 20px;
+    color: #AAAAAA;
+    font-size: 12px;
+    margin-top: 50px;
+    border-top: 1px solid #1E3A5F;
+}
