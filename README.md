@@ -71,5 +71,7 @@ streamlit run dashboard/app.py
 - Gradient Boosting algorithms successfully predicted billing amounts with high R² scores.
 - Unsupervised clustering revealed distinct cohorts of high-risk patients needing specialized care pathways.
 
----
+## 📊 Dataset
+Source: [Healthcare Dataset on Kaggle](https://www.kaggle.com/datasets/prasad22/healthcare-dataset)---
 *Built with ❤️ by Antigravity*
+
