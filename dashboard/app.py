@@ -11,14 +11,13 @@ import sys
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 from src.utils import CLEANED_CSV
-import src.ui as ui
 
 # Page configuration
 st.set_page_config(
     page_title="Healthcare Analytics Pro",
     page_icon="🏥",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 # Load CSS
@@ -46,46 +45,80 @@ except Exception as e:
     st.error(f"Error loading data: {e}")
     st.stop()
 
-# ── Global Navigation & Filters ──
-ui.render_top_nav()
+# ── Sidebar Filters ──
+st.sidebar.markdown("<h2 style='text-align: center; color: #00D4FF;'>🏥 HealthPro</h2>", unsafe_allow_html=True)
+st.sidebar.markdown("---")
+st.sidebar.subheader("Global Filters")
 
-st.title("🏥 Healthcare Analytics Dashboard")
-st.markdown("Explore comprehensive healthcare data with advanced analytics and predictive modeling.")
-
-filtered_df = ui.render_filters(raw_df)
-
-if len(filtered_df) == 0:
-    st.warning("No data matches the current filters. Please adjust the settings.")
+# Date range
+if "Date of Admission" in raw_df.columns:
+    min_date = raw_df["Date of Admission"].min().date()
+    max_date = raw_df["Date of Admission"].max().date()
+    date_range = st.sidebar.slider("Admission Date Range", 
+                                   min_value=min_date, max_value=max_date,
+                                   value=(min_date, max_date))
 else:
-    # ── KPIs ──
-    ui.render_kpis(filtered_df)
-    
-    st.markdown("### Welcome to HealthPro Analytics")
-    st.markdown("""
-    Use the navigation menu at the top to explore different analytical views:
-    - **Overview**: High-level executive KPIs and trends
-    - **Patients**: Deep dive into patient demographics
-    - **Financial**: Revenue, billing analysis, and insurance
-    - **AI Risk**: Machine learning models for risk and billing
-    """)
-    
-    # Professional Extras: Export Buttons
-    st.markdown("---")
-    st.markdown("### 📥 Data Export & Summary")
-    c1, c2 = st.columns([1, 5])
-    with c1:
-        csv = filtered_df.to_csv(index=False).encode('utf-8')
-        st.download_button(
-            label="Download CSV",
-            data=csv,
-            file_name='healthpro_data.csv',
-            mime='text/csv',
-        )
-    with c2:
-        pass # Reserved for PDF export in future
-        
-    st.dataframe(filtered_df.head(100), use_container_width=True)
-    st.caption("Showing preview of up to 100 rows.")
+    date_range = None
 
-# Footer
-st.markdown('<div class="custom-footer">© 2026 Healthcare Analytics Pro. Designed for excellence.</div>', unsafe_allow_html=True)
+# Multiselects
+hospitals = sorted(raw_df["Hospital"].dropna().unique())
+sel_hospitals = st.sidebar.multiselect("Select Hospitals", hospitals, default=[])
+
+conditions = sorted(raw_df["Medical Condition"].dropna().unique())
+sel_conditions = st.sidebar.multiselect("Medical Conditions", conditions, default=[])
+
+# Gender
+genders = ["All"] + sorted(raw_df["Gender"].dropna().unique().tolist())
+sel_gender = st.sidebar.radio("Gender", genders)
+
+# Age
+min_age = int(raw_df["Age"].min())
+max_age = int(raw_df["Age"].max())
+age_range = st.sidebar.slider("Age Range", min_age, max_age, (min_age, max_age))
+
+# ── Apply Filters ──
+filtered_df = raw_df.copy()
+
+if date_range and "Date of Admission" in filtered_df.columns:
+    mask = (filtered_df["Date of Admission"].dt.date >= date_range[0]) & \
+           (filtered_df["Date of Admission"].dt.date <= date_range[1])
+    filtered_df = filtered_df[mask]
+
+if sel_hospitals:
+    filtered_df = filtered_df[filtered_df["Hospital"].isin(sel_hospitals)]
+
+if sel_conditions:
+    filtered_df = filtered_df[filtered_df["Medical Condition"].isin(sel_conditions)]
+
+if sel_gender != "All":
+    filtered_df = filtered_df[filtered_df["Gender"] == sel_gender]
+
+filtered_df = filtered_df[(filtered_df["Age"] >= age_range[0]) & (filtered_df["Age"] <= age_range[1])]
+
+# ── Save to session state ──
+st.session_state["filtered_df"] = filtered_df
+st.session_state["raw_df"] = raw_df
+
+# Sidebar footer
+st.sidebar.markdown("---")
+st.sidebar.metric("Filtered Patients", f"{len(filtered_df):,}")
+st.sidebar.markdown(f"<p style='color: #888; font-size: 12px;'>{(len(filtered_df)/len(raw_df))*100:.1f}% of total data</p>", unsafe_allow_html=True)
+
+st.sidebar.markdown("<br>"*5, unsafe_allow_html=True)
+
+# Main page wrapper
+st.title("🏥 Healthcare Analytics Dashboard")
+st.markdown("Use the navigation sidebar to explore different analytical views.")
+if len(filtered_df) == 0:
+    st.warning("No data matches the current filters. Please adjust the sidebar settings.")
+
+st.markdown("---")
+st.markdown("""
+### Welcome to HealthPro Analytics
+Select a page from the sidebar to begin exploring the data:
+- **01 Overview**: High-level executive KPIs and trends
+- **02 Demographics**: Deep dive into patient populations
+- **03 Financial**: Revenue, billing analysis, and insurance
+- **04 Hospital Performance**: Provider comparisons and efficiency
+- **05 Predictions**: Machine learning models for risk and billing
+""")

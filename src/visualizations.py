@@ -10,22 +10,22 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-PALETTE = ['#1B4F72', '#148F77', '#2E86C1', '#117A65', '#28B463', '#2471A3', '#D35400', '#F39C12']
+PALETTE = ['#00D4FF','#7B2FBE','#00C896','#FF4757','#FFB347','#FF6B9D','#C77DFF','#4CC9F0']
 
 LAYOUT = dict(
-    paper_bgcolor="#FFFFFF",
-    plot_bgcolor="#FFFFFF",
-    font=dict(family="Inter, sans-serif", color="#333333"),
+    paper_bgcolor="#0A1628",
+    plot_bgcolor="#112240",
+    font=dict(family="Segoe UI, sans-serif", color="#E0E0E0"),
     margin=dict(l=40, r=20, t=50, b=40),
-    legend=dict(bgcolor="#FFFFFF", bordercolor="#E2E8F0"),
+    legend=dict(bgcolor="#112240", bordercolor="#1E3A5F"),
 )
 
 def _apply(fig, title=""):
     if title:
-        fig.update_layout(title=dict(text=title, font=dict(size=18, color="#1B4F72")))
+        fig.update_layout(title=dict(text=title, font=dict(size=18, color="#FFFFFF")))
     fig.update_layout(**LAYOUT)
-    fig.update_xaxes(gridcolor="#E2E8F0", zerolinecolor="#E2E8F0")
-    fig.update_yaxes(gridcolor="#E2E8F0", zerolinecolor="#E2E8F0")
+    fig.update_xaxes(gridcolor="#1E3A5F", zerolinecolor="#1E3A5F")
+    fig.update_yaxes(gridcolor="#1E3A5F", zerolinecolor="#1E3A5F")
     return fig
 
 # ── KPIs ─────────────────────────────────────────────────────────────────────
@@ -61,7 +61,7 @@ def top_conditions_bar(df, n=10):
     top = df["Medical Condition"].value_counts().head(n).reset_index()
     top.columns = ["Condition", "Count"]
     fig = px.bar(top, x="Count", y="Condition", orientation="h",
-                 color="Count", color_continuous_scale=["#E2E8F0", PALETTE[0]])
+                 color="Count", color_continuous_scale=["#112240", PALETTE[0]])
     return _apply(fig, "Top Medical Conditions")
 
 def revenue_by_insurer(df):
@@ -69,21 +69,21 @@ def revenue_by_insurer(df):
     rev.columns = ["Insurer", "Revenue"]
     rev = rev.sort_values("Revenue", ascending=True)
     fig = px.bar(rev, x="Revenue", y="Insurer", orientation="h",
-                 color="Revenue", color_continuous_scale=["#E2E8F0", PALETTE[1]])
+                 color="Revenue", color_continuous_scale=["#112240", PALETTE[1]])
     return _apply(fig, "Revenue by Insurance Provider")
 
 def top_hospitals_bar(df, n=10):
     top = df.groupby("Hospital")["Billing Amount"].sum().nlargest(n).reset_index()
     top.columns = ["Hospital", "Revenue"]
     fig = px.bar(top, x="Revenue", y="Hospital", orientation="h",
-                 color="Revenue", color_continuous_scale=["#E2E8F0", PALETTE[2]])
+                 color="Revenue", color_continuous_scale=["#112240", PALETTE[2]])
     return _apply(fig, "Top 10 Hospitals by Revenue")
 
 def top_doctors_bar(df, n=10):
     top = df["Doctor"].value_counts().head(n).reset_index()
     top.columns = ["Doctor", "Patients"]
     fig = px.bar(top, x="Patients", y="Doctor", orientation="h",
-                 color="Patients", color_continuous_scale=["#E2E8F0", PALETTE[4]])
+                 color="Patients", color_continuous_scale=["#112240", PALETTE[4]])
     return _apply(fig, "Top 10 Doctors by Patients Treated")
 
 def avg_days_by_condition(df):
@@ -93,7 +93,7 @@ def avg_days_by_condition(df):
     avg.columns = ["Condition", "Avg Days"]
     avg = avg.sort_values("Avg Days", ascending=True)
     fig = px.bar(avg, x="Avg Days", y="Condition", orientation="h",
-                 color="Avg Days", color_continuous_scale=["#E2E8F0", PALETTE[3]])
+                 color="Avg Days", color_continuous_scale=["#112240", PALETTE[3]])
     return _apply(fig, "Avg Days in Hospital by Condition")
 
 # ── Donut / Pie ───────────────────────────────────────────────────────────────
@@ -121,35 +121,15 @@ def blood_type_bar(df):
 # ── Heatmaps ─────────────────────────────────────────────────────────────────
 def condition_gender_heatmap(df):
     pivot = pd.crosstab(df["Medical Condition"], df["Gender"])
-    fig = px.imshow(pivot, color_continuous_scale="Teal", text_auto=True, aspect="auto")
+    fig = px.imshow(pivot, color_continuous_scale="Blues", text_auto=True, aspect="auto")
     return _apply(fig, "Medical Condition vs Gender")
 
 def hospital_condition_heatmap(df):
     top_h = df["Hospital"].value_counts().head(10).index
     subset = df[df["Hospital"].isin(top_h)]
     pivot = pd.crosstab(subset["Hospital"], subset["Medical Condition"])
-    fig = px.imshow(pivot, color_continuous_scale="Teal", text_auto=True, aspect="auto")
+    fig = px.imshow(pivot, color_continuous_scale="Viridis", text_auto=True, aspect="auto")
     return _apply(fig, "Hospital vs Medical Condition (Top 10 Hospitals)")
-
-def admissions_heatmap(df):
-    if "Date of Admission" not in df.columns:
-        return go.Figure()
-    
-    df_temp = df.copy()
-    df_temp['Month'] = df_temp['Date of Admission'].dt.month_name()
-    df_temp['DayOfWeek'] = df_temp['Date of Admission'].dt.day_name()
-    
-    months_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-    days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    
-    pivot = pd.crosstab(df_temp['Month'], df_temp['DayOfWeek'])
-    # Filter only available months/days
-    months_present = [m for m in months_order if m in pivot.index]
-    days_present = [d for d in days_order if d in pivot.columns]
-    pivot = pivot.reindex(index=months_present, columns=days_present, fill_value=0)
-    
-    fig = px.imshow(pivot, color_continuous_scale="Teal", text_auto=True, aspect="auto")
-    return _apply(fig, "Admissions by Month and Day of Week")
 
 # ── Scatter ───────────────────────────────────────────────────────────────────
 def age_billing_scatter(df):
@@ -174,7 +154,7 @@ def cluster_scatter(df):
 def billing_histogram(df):
     fig = px.histogram(df, x="Billing Amount", nbins=50,
                        color_discrete_sequence=[PALETTE[0]])
-    fig.update_traces(marker_line_color="#FFFFFF", marker_line_width=0.5)
+    fig.update_traces(marker_line_color="#112240", marker_line_width=0.5)
     return _apply(fig, "Billing Amount Distribution")
 
 def billing_by_admission_box(df):
@@ -184,48 +164,26 @@ def billing_by_admission_box(df):
 
 # ── Gauge (risk probability) ──────────────────────────────────────────────────
 def risk_gauge(probability: float, risk_label: str = ""):
-    color = "#148F77" if probability < 0.33 else "#F39C12" if probability < 0.66 else "#D35400"
+    color = "#00C896" if probability < 0.33 else "#FFB347" if probability < 0.66 else "#FF4757"
     fig = go.Figure(go.Indicator(
         mode="gauge+number+delta",
         value=round(probability * 100, 1),
-        number={"suffix": "%", "font": {"size": 28, "color": "#1B4F72"}},
-        title={"text": f"Emergency Risk: {risk_label}", "font": {"size": 16, "color": "#333333"}},
+        number={"suffix": "%", "font": {"size": 28, "color": "#FFFFFF"}},
+        title={"text": f"Emergency Risk: {risk_label}", "font": {"size": 16, "color": "#FFFFFF"}},
         gauge={
-            "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "#CBD5E1"},
+            "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "#AAA"},
             "bar": {"color": color},
-            "bgcolor": "#F8F9FA",
+            "bgcolor": "#112240",
             "borderwidth": 2,
-            "bordercolor": "#E2E8F0",
+            "bordercolor": "#1E3A5F",
             "steps": [
-                {"range": [0,  33], "color": "#E8F8F5"},
-                {"range": [33, 66], "color": "#FEF5E7"},
-                {"range": [66,100], "color": "#FDF2E9"},
+                {"range": [0,  33], "color": "#0A1628"},
+                {"range": [33, 66], "color": "#0A1628"},
+                {"range": [66,100], "color": "#0A1628"},
             ],
             "threshold": {"line": {"color": color, "width": 4}, "thickness": 0.75, "value": probability*100},
         }
     ))
-    fig.update_layout(paper_bgcolor="#FFFFFF", font=dict(color="#333333"),
+    fig.update_layout(paper_bgcolor="#0A1628", font=dict(color="#E0E0E0"),
                       margin=dict(l=30, r=30, t=60, b=20))
-    return fig
-
-def sparkline(df, date_col, value_col=None, color="#148F77"):
-    if date_col not in df.columns:
-        return go.Figure()
-    
-    if value_col:
-        trend = df.groupby(df[date_col].dt.to_period("M"))[value_col].sum().reset_index()
-    else:
-        trend = df.groupby(df[date_col].dt.to_period("M")).size().reset_index()
-    
-    trend[date_col] = trend[date_col].astype(str)
-    y_col = value_col if value_col else 0
-    
-    fig = go.Figure(go.Scatter(x=trend[date_col], y=trend[y_col], mode='lines', line=dict(color=color, width=3)))
-    fig.update_layout(
-        paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-        margin=dict(l=0, r=0, t=0, b=0),
-        xaxis=dict(showgrid=False, showticklabels=False, zeroline=False),
-        yaxis=dict(showgrid=False, showticklabels=False, zeroline=False),
-        height=50, showlegend=False
-    )
     return fig

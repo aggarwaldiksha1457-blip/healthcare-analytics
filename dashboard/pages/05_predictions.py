@@ -11,18 +11,9 @@ import sys
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 import src.visualizations as vis
-import src.ui as ui
 from src.utils import MODELS_DIR
 
-st.set_page_config(page_title="Predictions | HealthPro", page_icon="🔮", layout="wide", initial_sidebar_state="collapsed")
-
-# Load CSS
-css_path = Path(__file__).parent.parent / "assets" / "style.css"
-if css_path.exists():
-    with open(css_path) as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-ui.render_top_nav()
+st.set_page_config(page_title="Predictions | HealthPro", page_icon="🔮", layout="wide")
 
 st.title("🔮 AI Predictions & Risk Scoring")
 st.markdown("---")
@@ -51,28 +42,21 @@ if "filtered_df" not in st.session_state:
     st.stop()
 df = st.session_state["filtered_df"]
 
-ui.render_kpis(df)
-
 # ── INPUT FORM ──
-st.markdown("### Patient Profile Input")
-with st.form("patient_input"):
-    f1, f2, f3 = st.columns(3)
-    with f1:
-        age = st.slider("Age", 0, 100, 45)
-        gender = st.selectbox("Gender", ["Male", "Female"])
-        cond = st.selectbox("Medical Condition", df["Medical Condition"].dropna().unique() if "Medical Condition" in df.columns else ["Diabetes"])
-    with f2:
-        adm_type = st.selectbox("Admission Type", df["Admission Type"].dropna().unique() if "Admission Type" in df.columns else ["Emergency"])
-        ins = st.selectbox("Insurance Provider", df["Insurance Provider"].dropna().unique() if "Insurance Provider" in df.columns else ["Medicare"])
-        days = st.number_input("Days in Hospital", 1, 100, 5)
-    with f3:
-        blood = st.selectbox("Blood Type", df["Blood Type"].dropna().unique() if "Blood Type" in df.columns else ["O+"])
-        test = st.selectbox("Test Results", df["Test Results"].dropna().unique() if "Test Results" in df.columns else ["Normal"])
-        med = st.selectbox("Medication", df["Medication"].dropna().unique() if "Medication" in df.columns else ["Aspirin"])
+st.sidebar.markdown("### Patient Profile Input")
+with st.sidebar.form("patient_input"):
+    age = st.slider("Age", 0, 100, 45)
+    gender = st.selectbox("Gender", ["Male", "Female"])
+    cond = st.selectbox("Medical Condition", df["Medical Condition"].dropna().unique() if "Medical Condition" in df.columns else ["Diabetes"])
+    adm_type = st.selectbox("Admission Type", df["Admission Type"].dropna().unique() if "Admission Type" in df.columns else ["Emergency"])
+    ins = st.selectbox("Insurance Provider", df["Insurance Provider"].dropna().unique() if "Insurance Provider" in df.columns else ["Medicare"])
+    days = st.number_input("Days in Hospital", 1, 100, 5)
+    blood = st.selectbox("Blood Type", df["Blood Type"].dropna().unique() if "Blood Type" in df.columns else ["O+"])
+    test = st.selectbox("Test Results", df["Test Results"].dropna().unique() if "Test Results" in df.columns else ["Normal"])
+    med = st.selectbox("Medication", df["Medication"].dropna().unique() if "Medication" in df.columns else ["Aspirin"])
     
-    submit = st.form_submit_button("Generate Predictions", use_container_width=True)
+    submit = st.form_submit_button("Generate Predictions")
 
-st.markdown("---")
 st.markdown("### Patient Analysis Dashboard")
 
 c1, c2 = st.columns(2)
@@ -118,30 +102,11 @@ with c2:
         st.info("Risk model not trained.")
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ── SECTION C: PATIENT CLUSTERING & FEATURE IMPORTANCE ──
+# ── SECTION C: PATIENT CLUSTERING ──
 st.markdown("<br>", unsafe_allow_html=True)
-st.subheader("🧬 Additional Analysis")
-
-c3, c4 = st.columns(2)
-with c3:
-    if "cluster" in models:
-        st.plotly_chart(vis.cluster_scatter(df), use_container_width=True)
-        st.caption("The highlighted point (mocked) shows where this patient falls within historical cohorts.")
-    else:
-        st.info("Clustering model not trained.")
-
-with c4:
-    # Feature Importance Mockup
-    st.markdown("**Feature Importance for Risk Model**")
-    fi_data = pd.DataFrame({
-        "Feature": ["Age", "Days in Hospital", "Test Results", "Medical Condition", "Admission Type"],
-        "Importance": [0.45, 0.25, 0.15, 0.10, 0.05]
-    })
-    fi_data = fi_data.sort_values("Importance", ascending=True)
-    import plotly.express as px
-    fig_fi = px.bar(fi_data, x="Importance", y="Feature", orientation="h",
-                    color="Importance", color_continuous_scale=["#E2E8F0", vis.PALETTE[1]])
-    fig_fi = vis._apply(fig_fi)
-    fig_fi.update_layout(margin=dict(l=0, r=0, t=10, b=0), height=300)
-    st.plotly_chart(fig_fi, use_container_width=True)
-
+st.subheader("🧬 Patient Clustering")
+if "cluster" in models:
+    st.plotly_chart(vis.cluster_scatter(df), use_container_width=True)
+    st.caption("The highlighted point (mocked) shows where this patient falls within historical cohorts.")
+else:
+    st.info("Clustering model not trained.")
