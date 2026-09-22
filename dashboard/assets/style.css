@@ -1,36 +1,40 @@
 /* dashboard/assets/style.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* Global settings */
 [data-testid="stAppViewContainer"] {
-    background-color: #0A1628;
-    color: #E0E0E0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #F8F9FA;
+    color: #333333;
+    font-family: 'Inter', sans-serif;
+    /* Subtle medical pattern background */
+    background-image: radial-gradient(#E2E8F0 1px, transparent 1px);
+    background-size: 20px 20px;
 }
 
-[data-testid="stSidebar"] {
-    background-color: #081120;
-    border-right: 1px solid #1E3A5F;
+[data-testid="stSidebar"], [data-testid="collapsedControl"] {
+    display: none !important;
 }
 
 /* Titles and headers */
 h1, h2, h3, h4, h5, h6 {
-    color: #FFFFFF !important;
+    color: #1B4F72 !important;
     font-weight: 600 !important;
+    font-family: 'Inter', sans-serif;
 }
 
 /* Custom metric cards */
 div[data-testid="stMetricValue"] {
     font-size: 28px !important;
-    color: #00D4FF !important;
+    color: #1B4F72 !important;
     font-weight: 700 !important;
-    text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
 }
 
 div[data-testid="stMetricLabel"] {
     font-size: 14px !important;
-    color: #AAAAAA !important;
+    color: #666666 !important;
     text-transform: uppercase;
     letter-spacing: 1px;
+    font-weight: 500;
 }
 
 div[data-testid="stMetricDelta"] {
@@ -44,50 +48,66 @@ div.stNumberInput, div.stSelectbox, div.stMultiSelect, div.stSlider {
 
 /* Metric wrapper styling to look like cards */
 [data-testid="metric-container"] {
-    background-color: #112240;
-    border: 1px solid #1E3A5F;
-    border-radius: 10px;
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
     padding: 15px 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     transition: transform 0.2s, box-shadow 0.2s;
 }
 [data-testid="metric-container"]:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 212, 255, 0.15);
-    border-color: #00D4FF;
+    box-shadow: 0 8px 15px rgba(27, 79, 114, 0.1);
+    border-color: #148F77;
 }
 
 /* Buttons */
 .stButton > button {
-    background: linear-gradient(135deg, #7B2FBE, #00D4FF);
+    background: #1B4F72;
     color: white;
     border: none;
     border-radius: 6px;
     padding: 10px 24px;
-    font-weight: bold;
+    font-weight: 600;
     transition: all 0.3s ease;
 }
 .stButton > button:hover {
-    background: linear-gradient(135deg, #00D4FF, #7B2FBE);
-    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+    background: #148F77;
+    box-shadow: 0 4px 12px rgba(20, 143, 119, 0.3);
     color: white;
+    border: none;
 }
 
 /* Inputs and dropdowns */
 .stTextInput > div > div > input,
 .stSelectbox > div > div > div,
 .stMultiSelect > div > div > div {
-    background-color: #112240 !important;
-    color: #FFFFFF !important;
-    border: 1px solid #1E3A5F !important;
+    background-color: #FFFFFF !important;
+    color: #333333 !important;
+    border: 1px solid #CBD5E1 !important;
     border-radius: 6px !important;
 }
 
 /* Dataframe tables */
 [data-testid="stDataFrame"] {
-    background-color: #112240;
+    background-color: #FFFFFF;
     border-radius: 8px;
-    border: 1px solid #1E3A5F;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+/* Custom top nav */
+.top-nav-link {
+    text-decoration: none;
+    color: #1B4F72;
+    font-weight: 600;
+    padding: 10px 15px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+.top-nav-link:hover {
+    background-color: #E2E8F0;
+    color: #148F77;
 }
 
 /* Footer */
@@ -97,8 +117,8 @@ footer {
 .custom-footer {
     text-align: center;
     padding: 20px;
-    color: #AAAAAA;
+    color: #888888;
     font-size: 12px;
     margin-top: 50px;
-    border-top: 1px solid #1E3A5F;
+    border-top: 1px solid #E2E8F0;
 }

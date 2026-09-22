@@ -9,8 +9,17 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 import src.visualizations as vis
+import src.ui as ui
 
-st.set_page_config(page_title="Financial | HealthPro", page_icon="💰", layout="wide")
+st.set_page_config(page_title="Financial | HealthPro", page_icon="💰", layout="wide", initial_sidebar_state="collapsed")
+
+# Load CSS
+css_path = Path(__file__).parent.parent / "assets" / "style.css"
+if css_path.exists():
+    with open(css_path) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+ui.render_top_nav()
 
 if "filtered_df" not in st.session_state:
     st.warning("Please navigate to the main app page first to load data.")
@@ -24,6 +33,8 @@ if len(df) == 0:
 
 st.title("💰 Financial Analysis")
 st.markdown("---")
+
+ui.render_kpis(df)
 
 # Row 1: Metrics
 m1, m2, m3, m4 = st.columns(4)

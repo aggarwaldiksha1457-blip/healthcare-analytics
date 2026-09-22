@@ -8,8 +8,17 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 import src.visualizations as vis
+import src.ui as ui
 
-st.set_page_config(page_title="Hospital Performance | HealthPro", page_icon="🏥", layout="wide")
+st.set_page_config(page_title="Hospital Performance | HealthPro", page_icon="🏥", layout="wide", initial_sidebar_state="collapsed")
+
+# Load CSS
+css_path = Path(__file__).parent.parent / "assets" / "style.css"
+if css_path.exists():
+    with open(css_path) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+ui.render_top_nav()
 
 if "filtered_df" not in st.session_state:
     st.warning("Please navigate to the main app page first to load data.")
@@ -24,6 +33,8 @@ if len(df) == 0:
 st.title("🏥 Hospital & Provider Performance")
 st.markdown("---")
 
+ui.render_kpis(df)
+
 c1, c2 = st.columns(2)
 with c1:
     if "Hospital" in df.columns:
@@ -31,7 +42,7 @@ with c1:
         top_h = df["Hospital"].value_counts().head(10).reset_index()
         top_h.columns = ["Hospital", "Patients"]
         fig1 = px.bar(top_h, x="Patients", y="Hospital", orientation="h",
-                      color="Patients", color_continuous_scale=["#112240", vis.PALETTE[1]])
+                      color="Patients", color_continuous_scale=["#E2E8F0", vis.PALETTE[1]])
         fig1 = vis._apply(fig1, "Top 10 Hospitals by Volume")
         st.plotly_chart(fig1, use_container_width=True)
 with c2:
